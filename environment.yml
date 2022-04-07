@@ -12,6 +12,8 @@ dependencies:
   - jupyterlab_server
   - jupyterlab_widgets
   - notebook
+  - uvicorn
+  - fastapi
   - pip:
     - boto3
     - botocore
