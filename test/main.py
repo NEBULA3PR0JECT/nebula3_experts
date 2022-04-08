@@ -42,6 +42,9 @@ from experts.service.base_expert import BaseExpert
 from experts.app import ExpertApp
 
 class MyExpert(BaseExpert):
+    def __init__(self):
+      super.__init__()
+
 
     def get_name(self):
         return "MyExpert"

@@ -1,6 +1,7 @@
 from typing import Optional
 from fastapi import FastAPI
 from .service.base_expert import BaseExpert
+from nebula3_pipeline.pipeline.api import PipelineApi
 
 tags_metadata = [
     {
@@ -22,10 +23,24 @@ class ExpertApp:
     def __init__(self, expert: BaseExpert, params = None):
         self.params = params
         self.expert = expert
+        self.pipeline = PipelineApi()
+        self.init_pipeline()
         self.app = FastAPI(openapi_tags=tags_metadata)
         self.add_base_apis()
         # Add expert specific apis
         self.expert.add_expert_apis(self.app)
+
+    def init_pipeline(self):
+        """init pipeline params
+        and add pipeline event handlers/callbacks
+        """
+        self.pipeline.subscribe(self.expert.get_name(),
+                                self.expert.get_dependency(),
+                                self.on_pipeline_msg)
+
+    def on_pipeline_msg(self, msg):
+        self.expert.handle_msg(msg)
+
 
     def add_base_apis(self):
         """add base apis
