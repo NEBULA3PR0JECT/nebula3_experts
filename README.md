@@ -14,3 +14,16 @@
   to operate the experts api.
 - Postman and other apps can be used to operate the apis
 - If you still want to work from terminal, learn curl.
+
+#
+- when an expert starts a new taks it has to call self.add_task and when finishes call self.remove_task
+- since expert is running in container, all the logs are going to stdout/stderr so that they could be
+  seen from outside using docker logs, and that we can aggragate them
+
+
+
+
+
+# todo:
+- add get/set logger level
+

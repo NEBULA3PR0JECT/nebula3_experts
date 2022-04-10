@@ -43,13 +43,13 @@ from experts.app import ExpertApp
 
 class MyExpert(BaseExpert):
     def __init__(self):
-      super.__init__()
-
+        super.__init__()
+        # after init all
+        self.set_active()
 
     def get_name(self):
         return "MyExpert"
-    def get_status(self):
-        return "MyExpert- running"
+
     def add_expert_apis(self, app: FastAPI):
         @app.get("/my-expert")
         def get_my_expert(q: Optional[str] = None):
