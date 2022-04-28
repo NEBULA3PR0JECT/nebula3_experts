@@ -1,6 +1,9 @@
 # nebula3_experts
 ## Base module for all experts
 
+## HOW TO USE THIS REPO:
+1. `git clone https://github.com/NEBULA3PR0JECT/nebula3_experts.git --recursive`
+
 ## Expert Configuration
 - Since experts are started in a microservice container (via gradient or else), it is useless to
   set configuration in the command args, therefore, expert's specific configuration
