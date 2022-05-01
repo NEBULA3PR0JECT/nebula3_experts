@@ -54,6 +54,11 @@ class MyExpert(BaseExpert):
 
     def get_name(self):
         return "MyExpert"
+    def get_cfg(self) -> str:
+        return {}
+    def get_dependency(self) -> str:
+        return "MyExpert"
+
 
     def get_cfg(self):
         """return expert's name

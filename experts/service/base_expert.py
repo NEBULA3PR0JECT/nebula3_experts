@@ -11,6 +11,11 @@ sys.path.insert(0, 'nebula3_pipeline/nebula3_database/')
 sys.path.insert(0, 'nebula3_pipeline/')
 from common.defines import *
 from experts.common.constants import OUTPUT
+
+import sys
+sys.path.insert(0, 'experts/')
+sys.path.insert(0, 'nebula3_pipeline/nebula3_database/')
+sys.path.insert(0, 'nebula3_pipeline/')
 from nebula3_pipeline.nebula3_database.movie_db import MOVIE_DB
 from nebula3_pipeline.nebula3_database.movie_s3 import MOVIE_S3
 # from nebula3_pipeline.nebula3_database.movie_tokens import MovieTokens
@@ -75,7 +80,7 @@ class BaseExpert(ABC):
         """
         pass
 
-    @abstractmethod
+    # @abstractmethod
     def get_status(self) -> str:
         """return expert's status
         """
@@ -87,7 +92,7 @@ class BaseExpert(ABC):
         """
         pass
 
-    @abstractmethod
+    # @abstractmethod
     def get_tasks(self) -> list:
         """ return the taks currently running """
         current_tasks = list()
@@ -105,8 +110,9 @@ class BaseExpert(ABC):
         Returns:
             str: _description_
         """
+        pass
 
-    @abstractmethod
+    # @abstractmethod
     def handle_msg(self, msg_params):
         """handling msg: going over the movies and calling predict on each one
         Args:

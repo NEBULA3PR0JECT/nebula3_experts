@@ -123,7 +123,8 @@ class ExpertApp:
                                 self.expert.get_dependency(),
                                 self.on_pipeline_msg)
         self.msg_thread = Thread(target=self.msg_handle)
-        self.msg_thread.start()
+        # TODO enable this for pipeline
+        # self.msg_thread.start()
 
     def on_pipeline_msg(self, msg):
         """handle msg received from pipeline subscription
@@ -175,19 +176,19 @@ class ExpertApp:
         def get_status():
             return {"status": self.expert.get_status()}
 
-        @self.app.post("/set}", tags=['set'] )
+        @self.app.post("/set", tags=['set'] )
         def post_config():
             return {"set": 'not supported' }
 
-        @self.app.get("/cfg}", tags=['cfg'] )
+        @self.app.get("/cfg", tags=['cfg'] )
         def get_config():
             return {"cfg": self.expert.get_cfg()}
 
-        @self.app.get("/tasks}", tags=['tasks'] )
+        @self.app.get("/tasks", tags=['tasks'] )
         def get_tasks():
             return {"tasks": self.expert.get_tasks() }
 
-        @self.app.post("/predict}", tags=['run'] )
+        @self.app.post("/predict", tags=['run'] )
         async def predict(params: PredictParam):
             """ predict - this is an async command so putting to queue """
             if params.output == constants.OUTPUT_DB:
