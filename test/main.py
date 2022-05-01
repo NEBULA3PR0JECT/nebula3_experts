@@ -44,12 +44,17 @@ from experts.common.defines import *
 
 class MyExpert(BaseExpert):
     def __init__(self):
-        super.__init__()
+        super().__init__()
         # after init all
         self.set_active()
 
     def get_name(self):
         return "MyExpert"
+    def get_cfg(self) -> str:
+        return {}
+    def get_dependency(self) -> str:
+        return "MyExpert"
+
 
     def add_expert_apis(self, app: FastAPI):
         @app.get("/my-expert")
