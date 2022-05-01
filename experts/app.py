@@ -45,7 +45,7 @@ class PredictParam(BaseModel):
         schema_extra = {
             "example": {
                 "movie_id": "the movie id in db",
-                "movie_id": "movie location: local (true) /remote (false)",
+                "local": "movie location: local (true) /remote (false)",
                 "output": "where to output: json (return json in response)/db, default- db"
             }
         }
