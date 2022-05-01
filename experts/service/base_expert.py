@@ -5,10 +5,15 @@ from fastapi import FastAPI
 from threading import Lock
 import logging
 from experts.common.defines import *
+import sys
+sys.path.insert(0, 'experts/')
+sys.path.insert(0, 'nebula3_pipeline/nebula3_database/')
+sys.path.insert(0, 'nebula3_pipeline/')
+from common.defines import *
 from experts.common.constants import OUTPUT
 from nebula3_pipeline.nebula3_database.movie_db import MOVIE_DB
 from nebula3_pipeline.nebula3_database.movie_s3 import MOVIE_S3
-from nebula3_pipeline.nebula3_database.movie_tokens import MovieTokens
+# from nebula3_pipeline.nebula3_database.movie_tokens import MovieTokens
 
 
 class BaseExpert(ABC):
@@ -16,7 +21,7 @@ class BaseExpert(ABC):
         self.movie_db = MOVIE_DB()
         self.db = self.movie_db.db
         self.movie_s3 = MOVIE_S3()
-        self.movie_tokens = MovieTokens(self.db)
+        # self.movie_tokens = MovieTokens(self.db)
         self.status = ExpertStatus.STARTING
         self.tasks_lock = Lock()
         self.tasks = dict()
@@ -117,6 +122,7 @@ class BaseExpert(ABC):
     def predict(self, movie_id, output: OutputStyle):
         """ handle new movie """
         pass
+
 
     @abstractmethod
     def handle_exit(self):

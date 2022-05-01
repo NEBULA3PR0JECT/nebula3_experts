@@ -8,7 +8,7 @@ from typing import Optional
 from fastapi import FastAPI
 from pydantic import BaseModel
 from .service.base_expert import BaseExpert
-from nebula3_pipeline.pipeline.api import PipelineApi
+from nebula3_pipeline.pipeline.api import PIPELINE_API
 import experts.common.constants as constants
 from experts.common.defines import ExpertCommands, OutputStyle
 
@@ -38,6 +38,7 @@ tags_metadata = [
 
 class PredictParam(BaseModel):
     movie_id: str
+    scene_element: Optional[int] = None
     local: bool
     output: Optional[str] = None
 
@@ -45,6 +46,7 @@ class PredictParam(BaseModel):
         schema_extra = {
             "example": {
                 "movie_id": "the movie id in db",
+                "scene_element": "movie's scene element",
                 "local": "movie location: local (true) /remote (false)",
                 "output": "where to output: json (return json in response)/db, default- db"
             }
@@ -58,13 +60,15 @@ class ExpertApp:
         self.running = True
         self.logger = self.init_logger()
         self.msgq = Queue()
-        self.pipeline = PipelineApi(self.logger)
-        self.init_pipeline()
+        self.pipeline = PIPELINE_API() #PIPELINE_API(self.logger)
+        # self.init_pipeline()
         self.app = FastAPI(openapi_tags=tags_metadata)
         self.add_base_apis()
         self.expert.set_logger(self.logger)
         # Add expert specific apis
         self.expert.add_expert_apis(self.app)
+        self.expert.predict_on_txt(self.app)
+        self.expert.predict_on_video(self.app)
 
     def __del__(self):
         if not self.running:
@@ -189,7 +193,8 @@ class ExpertApp:
             if params.output == constants.OUTPUT_DB:
                 self.msgq.put_nowait({ constants.COMMAND: ExpertCommands.CLI_PREDICT, constants.PARAMS: params })
             # no output style is like json -> predict and return result
-            return self.expert.predict(params.movie_id, OutputStyle.JSON)
+            return self.expert.predict(params.movie_id, params.scene_element, OutputStyle.JSON)
+
 
     def run(self):
         print("Running...")
