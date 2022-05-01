@@ -4,7 +4,7 @@ from typing import Optional
 from fastapi import FastAPI
 from threading import Lock
 import logging
-from common.defines import *
+from experts.common.defines import *
 from experts.common.constants import OUTPUT
 from nebula3_pipeline.nebula3_database.movie_db import MOVIE_DB
 from nebula3_pipeline.nebula3_database.movie_s3 import MOVIE_S3

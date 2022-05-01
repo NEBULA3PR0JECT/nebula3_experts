@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from .service.base_expert import BaseExpert
 from nebula3_pipeline.pipeline.api import PipelineApi
 import experts.common.constants as constants
-from experts.common.defines import ExpertCommands
+from experts.common.defines import ExpertCommands, OutputStyle
 
 tags_metadata = [
     {
@@ -46,7 +46,7 @@ class PredictParam(BaseModel):
             "example": {
                 "movie_id": "the movie id in db",
                 "movie_id": "movie location: local (true) /remote (false)",
-                "output": "where to output: json (return json in response)/db/file, default- db"
+                "output": "where to output: json (return json in response)/db, default- db"
             }
         }
 
@@ -186,8 +186,10 @@ class ExpertApp:
         @self.app.post("/predict}", tags=['run'] )
         async def predict(params: PredictParam):
             """ predict - this is an async command so putting to queue """
-            self.msgq.put_nowait({ constants.COMMAND: ExpertCommands.CLI_PREDICT, constants.PARAMS: params })
-            return {"predict": 'ok' }
+            if params.output == constants.OUTPUT_DB:
+                self.msgq.put_nowait({ constants.COMMAND: ExpertCommands.CLI_PREDICT, constants.PARAMS: params })
+            # no output style is like json -> predict and return result
+            return self.expert.predict(params.movie_id, OutputStyle.JSON)
 
     def run(self):
         print("Running...")

@@ -40,6 +40,7 @@ from typing import Optional
 
 from experts.service.base_expert import BaseExpert
 from experts.app import ExpertApp
+from experts.common.defines import *
 
 class MyExpert(BaseExpert):
     def __init__(self):
@@ -54,6 +55,12 @@ class MyExpert(BaseExpert):
         @app.get("/my-expert")
         def get_my_expert(q: Optional[str] = None):
             return {"expert": "my-expert" }
+
+    def predict(self, movie_id, output: OutputStyle):
+        """ handle new movie """
+        movie = self.movie_db.get_movie(movie_id)
+        print(f'Predicting movie: {movie_id}')
+        return { 'result': { 'movie_id' : movie_id, 'info': movie } }
 
 my_expert = MyExpert()
 expert_app = ExpertApp(expert=my_expert)
