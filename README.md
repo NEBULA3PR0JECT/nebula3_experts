@@ -19,7 +19,7 @@
 
 **Build the docker:**
 
-3. docker build -t microservice-expert .
+3. `docker build -t microservice-expert` .
 
 *Note:* You can change `microservice-expert` to your desired image name.
 
