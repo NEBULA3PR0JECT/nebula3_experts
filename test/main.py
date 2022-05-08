@@ -86,40 +86,7 @@ class MyExpert(BaseExpert):
 
     def predict(self, movie_id, scene_element, output: OutputStyle):
         """ handle new movie """
-        clip_model = Model()
-        data = {}
-        full_movie_id = "Movies/" + movie_id
-        data['movie_id'] = full_movie_id
-        data['scene_element'] = scene_element
-        result = clip_model.encode_video(data)
-        return { 'result': result }
-        # movie = self.movie_db.get_movie(movie_id)
-        # print(f'Predicting movie: {movie_id}')
-        # return { 'result': { 'movie_id' : movie_id, 'info': movie } }
-
-
-    def predict_on_txt(self, app: FastAPI):
-        """ Prediction on text """
-        @app.get("/predict-on-txt/{txt}")
-        def get_my_expert(txt: Optional[str] = 'test'):
-            clip_model = Model()
-            data = {}
-            data['text'] = txt
-            result = clip_model.encode_text(data)
-            return { 'result': result}
-    
-    def predict_on_video(self, app: FastAPI):
-        """ Prediction on video """
-        @app.get("/predict-on-video/{movie_id}/{scene_element}")
-        def get_my_expert(movie_id: Optional[str] = '114208777', scene_element: Optional[int] = 0):
-            clip_model = Model()
-            data = {}
-            full_movie_id = "Movies/" + movie_id
-            data['movie_id'] = full_movie_id
-            data['scene_element'] = scene_element
-            result = clip_model.encode_video(data)
-            return { 'result': result}
-
+        pass
 
 my_expert = MyExpert()
 expert_app = ExpertApp(expert=my_expert)
