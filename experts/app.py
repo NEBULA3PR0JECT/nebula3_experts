@@ -61,14 +61,12 @@ class ExpertApp:
         self.logger = self.init_logger()
         self.msgq = Queue()
         self.pipeline = PIPELINE_API() #PIPELINE_API(self.logger)
-        # self.init_pipeline()
+        self.init_pipeline()
         self.app = FastAPI(openapi_tags=tags_metadata)
         self.add_base_apis()
         self.expert.set_logger(self.logger)
         # Add expert specific apis
         self.expert.add_expert_apis(self.app)
-        self.expert.predict_on_txt(self.app)
-        self.expert.predict_on_video(self.app)
 
     def __del__(self):
         if not self.running:
@@ -194,7 +192,7 @@ class ExpertApp:
             if params.output == constants.OUTPUT_DB:
                 self.msgq.put_nowait({ constants.COMMAND: ExpertCommands.CLI_PREDICT, constants.PARAMS: params })
             # no output style is like json -> predict and return result
-            return self.expert.predict(params.movie_id, params.scene_element, OutputStyle.JSON)
+            return self.expert.predict(params.movie_id, OutputStyle.JSON)
 
 
     def run(self):

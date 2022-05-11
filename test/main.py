@@ -54,39 +54,17 @@ class MyExpert(BaseExpert):
 
     def get_name(self):
         return "MyExpert"
-    def get_cfg(self) -> str:
-        return {}
-    def get_dependency(self) -> str:
-        return "MyExpert"
-
-
-    def get_cfg(self):
-        """return expert's name
-        """
-        pass
-
-    def get_dependency(self):
-        pass
-    def get_status(self):   
-        pass
-
-    def get_tasks(self):   
-        pass
-
-    def handle_exit(self):   
-        pass
-
-    def handle_msg(self):   
-        pass
 
     def add_expert_apis(self, app: FastAPI):
         @app.get("/my-expert")
         def get_my_expert(q: Optional[str] = None):
             return {"expert": "my-expert" }
 
-    def predict(self, movie_id, scene_element, output: OutputStyle):
+    def predict(self, movie_id, output: OutputStyle):
         """ handle new movie """
-        pass
+        movie = self.movie_db.get_movie(movie_id)
+        print(f'Predicting movie: {movie_id}')
+        return { 'result': { 'movie_id' : movie_id, 'info': movie } }
 
 my_expert = MyExpert()
 expert_app = ExpertApp(expert=my_expert)
