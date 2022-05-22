@@ -21,7 +21,8 @@
   seen from outside using docker logs, and that we can aggragate them
 
 
-
+# Env params
+- EXPERT_RUN_PIPELINE: true/false run pipeline thread (default - false)
 
 
 # todo:

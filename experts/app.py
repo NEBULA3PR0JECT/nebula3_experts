@@ -8,9 +8,12 @@ from typing import Optional
 from fastapi import FastAPI
 from pydantic import BaseModel
 from .service.base_expert import BaseExpert
-from nebula3_pipeline.pipeline.api import PIPELINE_API
+from nebula3_pipeline.pipeline.api import PipelineApi
 import experts.common.constants as constants
 from experts.common.defines import ExpertCommands, OutputStyle
+from experts.common.models import ExpertParam
+from experts.common.config import ExpertConf
+
 
 tags_metadata = [
     {
@@ -40,7 +43,8 @@ class PredictParam(BaseModel):
     movie_id: str
     scene_element: Optional[int] = None
     local: bool
-    output: Optional[str] = None
+    extra_params: Optional[dict] = None
+    output: Optional[str] = OutputStyle.DB
 
     class Config:
         schema_extra = {
@@ -48,6 +52,7 @@ class PredictParam(BaseModel):
                 "movie_id": "the movie id in db",
                 "scene_element": "movie's scene element",
                 "local": "movie location: local (true) /remote (false)",
+                "extra_params": "the expert's specific params in json object",
                 "output": "where to output: json (return json in response)/db, default- db"
             }
         }
@@ -60,8 +65,13 @@ class ExpertApp:
         self.running = True
         self.logger = self.init_logger()
         self.msgq = Queue()
-        self.pipeline = PIPELINE_API() #PIPELINE_API(self.logger)
-        self.init_pipeline()
+        self.config = ExpertConf()
+        # check env for disable pipeline
+        if self.config.get_run_pipeline():
+            self.pipeline =  PipelineApi(self.logger) #PIPELINE_API(self.logger)
+            self.init_pipeline()
+        else:
+            self.pipeline = None
         self.app = FastAPI(openapi_tags=tags_metadata)
         self.add_base_apis()
         self.expert.set_logger(self.logger)
@@ -189,11 +199,20 @@ class ExpertApp:
         @self.app.post("/predict", tags=['run'] )
         async def predict(params: PredictParam):
             """ predict - this is an async command so putting to queue """
-            if params.output == constants.OUTPUT_DB:
-                self.msgq.put_nowait({ constants.COMMAND: ExpertCommands.CLI_PREDICT, constants.PARAMS: params })
+            # parsing into ExpertParams
+            expert_params = self.parse_params(params)
+            if expert_params.output == constants.OUTPUT_DB:
+                self.msgq.put_nowait({ constants.COMMAND: ExpertCommands.CLI_PREDICT, constants.PARAMS: expert_params })
             # no output style is like json -> predict and return result
-            return self.expert.predict(params.movie_id, OutputStyle.JSON)
+            return self.expert.predict(expert_params)
 
+    def parse_params(self, params):
+        expert_params = ExpertParam(params.movie_id,
+                                    params.scene_element,
+                                    params.local,
+                                    params.extra_params,
+                                    params.output)
+        return expert_params
 
     def run(self):
         print("Running...")

@@ -6,6 +6,8 @@ from threading import Lock
 import logging
 from experts.common.defines import *
 import sys
+
+from experts.common.models import ExpertParam
 sys.path.insert(0, 'experts/')
 sys.path.insert(0, 'nebula3_pipeline/nebula3_database/')
 sys.path.insert(0, 'nebula3_pipeline/')
@@ -18,7 +20,6 @@ sys.path.insert(0, 'nebula3_pipeline/nebula3_database/')
 sys.path.insert(0, 'nebula3_pipeline/')
 from nebula3_pipeline.nebula3_database.movie_db import MOVIE_DB
 from nebula3_pipeline.nebula3_database.movie_s3 import MOVIE_S3
-# from nebula3_pipeline.nebula3_database.movie_tokens import MovieTokens
 
 
 class BaseExpert(ABC):
@@ -26,7 +27,6 @@ class BaseExpert(ABC):
         self.movie_db = MOVIE_DB()
         self.db = self.movie_db.db
         self.movie_s3 = MOVIE_S3()
-        # self.movie_tokens = MovieTokens(self.db)
         self.status = ExpertStatus.STARTING
         self.tasks_lock = Lock()
         self.tasks = dict()
@@ -86,11 +86,10 @@ class BaseExpert(ABC):
         """
         return self.status.name
 
-    @abstractmethod
-    def get_cfg(self) -> str:
+    def get_cfg(self) -> dict:
         """return expert's config params
         """
-        pass
+        return {}
 
     # @abstractmethod
     def get_tasks(self) -> list:
@@ -101,7 +100,6 @@ class BaseExpert(ABC):
                 current_tasks.append({ 'id': id, 'info': info })
         return current_tasks
 
-    @abstractmethod
     def get_dependency(self) -> str:
         """return the expert's dependency in the pipeline:
         which pipeline step is this expert depends on
@@ -125,13 +123,13 @@ class BaseExpert(ABC):
                 self.predict(movie_id, output)
 
     @abstractmethod
-    def predict(self, movie_id, output: OutputStyle):
+    def predict(self, expert_params: ExpertParam):
         """ handle new movie """
         pass
 
 
-    @abstractmethod
+    # @abstractmethod
     def handle_exit(self):
         """handle things before exit process
         """
-        pass
+        print(f'Exiting from: {self.get_name()}')
