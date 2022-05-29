@@ -7,8 +7,12 @@ from threading import Thread
 from typing import Optional
 from fastapi import FastAPI
 from pydantic import BaseModel
+
+# add project root to path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
+
 from .service.base_expert import BaseExpert
-from nebula3_pipeline.pipeline.api import PipelineApi
+from nebula3_experts.nebula3_pipeline.pipeline.api import PipelineApi
 import experts.common.constants as constants
 from experts.common.defines import ExpertCommands, OutputStyle
 from experts.common.models import ExpertParam

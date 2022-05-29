@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from experts.common.defines import OutputStyle
+from .defines import OutputStyle
 
 @dataclass
 class ExpertParam:

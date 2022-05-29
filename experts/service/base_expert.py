@@ -4,22 +4,18 @@ from typing import Optional
 from fastapi import FastAPI
 from threading import Lock
 import logging
-from experts.common.defines import *
+import os
 import sys
+# add project root to path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
 
-from experts.common.models import ExpertParam
-sys.path.insert(0, 'experts/')
-sys.path.insert(0, 'nebula3_pipeline/nebula3_database/')
-sys.path.insert(0, 'nebula3_pipeline/')
+
 from common.defines import *
-from experts.common.constants import OUTPUT
+from common.models import ExpertParam
+from common.constants import OUTPUT
 
-import sys
-sys.path.insert(0, 'experts/')
-sys.path.insert(0, 'nebula3_pipeline/nebula3_database/')
-sys.path.insert(0, 'nebula3_pipeline/')
-from nebula3_pipeline.nebula3_database.movie_db import MOVIE_DB
-from nebula3_pipeline.nebula3_database.movie_s3 import MOVIE_S3
+from nebula3_experts.nebula3_pipeline.nebula3_database.movie_db import MOVIE_DB
+from nebula3_experts.nebula3_pipeline.nebula3_database.movie_s3 import MOVIE_S3
 
 
 class BaseExpert(ABC):
