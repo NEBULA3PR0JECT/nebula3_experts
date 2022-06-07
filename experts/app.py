@@ -45,10 +45,10 @@ tags_metadata = [
 
 class PredictParam(BaseModel):
     movie_id: str
-    scene_element: Optional[int] = None
+    scene_element: int = None
     local: bool
-    extra_params: Optional[dict] = None
-    output: Optional[str] = OutputStyle.DB
+    extra_params: dict = None
+    output: str = constants.OUTPUT_JSON
 
     class Config:
         schema_extra = {
