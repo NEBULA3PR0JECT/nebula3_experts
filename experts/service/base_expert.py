@@ -6,6 +6,7 @@ from threading import Lock
 import logging
 import os
 import sys
+import urllib
 # add project root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
 
@@ -16,17 +17,22 @@ from common.constants import OUTPUT
 
 from nebula3_experts.nebula3_pipeline.nebula3_database.movie_db import MOVIE_DB
 from nebula3_experts.nebula3_pipeline.nebula3_database.movie_s3 import MOVIE_S3
+from nebula3_experts.nebula3_pipeline.nebula3_database.config import NEBULA_CONF
 
+
+DEFAULT_FILE_PATH = "/tmp/file.mp4"
 
 class BaseExpert(ABC):
     def __init__(self):
+        self.db_conf = NEBULA_CONF()
         self.movie_db = MOVIE_DB()
         self.db = self.movie_db.db
         self.movie_s3 = MOVIE_S3()
         self.status = ExpertStatus.STARTING
         self.tasks_lock = Lock()
         self.tasks = dict()
-
+        self.temp_file = DEFAULT_FILE_PATH
+        self.url_prefix = self.db_conf.get_webserver()
 
     def set_logger(self, logger: logging.Logger):
         self.logger = logger
@@ -129,3 +135,33 @@ class BaseExpert(ABC):
         """handle things before exit process
         """
         print(f'Exiting from: {self.get_name()}')
+
+    # utilities
+    def download_video_file(self, movie_id, file_location = None, remove_prev = True):
+        """download video file to location
+
+        Args:
+            movie_id (_type_): _description_
+            file_location (str): file location or default
+            remove_prev: remove previous file on that location
+
+        Returns:
+            True/False
+        """
+        if file_location is None:
+            file_location = DEFAULT_FILE_PATH
+        # remove last file
+        if remove_prev and os.path.exists(file_location):
+            os.remove(file_location)
+
+        url_prefix = self.url_prefix
+        url_link = ''
+
+        movie = self.movie_db.get_movie(movie_id)
+        if movie:
+            url_link = url_prefix + movie['url_path']
+            url_link = url_link.replace(".avi", ".mp4")
+            print(url_link)
+            urllib.request.urlretrieve(url_link, file_location)
+            return True
+        return False
