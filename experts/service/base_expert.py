@@ -7,6 +7,7 @@ import logging
 import os
 import sys
 import urllib
+from typing import List
 # add project root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
 
@@ -17,6 +18,7 @@ from common.constants import OUTPUT
 
 from nebula3_experts.nebula3_pipeline.nebula3_database.movie_db import MOVIE_DB
 from nebula3_experts.nebula3_pipeline.nebula3_database.movie_s3 import MOVIE_S3
+from nebula3_experts.nebula3_pipeline.nebula3_database.movie_tokens import MovieTokens, TokenEntry
 from nebula3_experts.nebula3_pipeline.nebula3_database.config import NEBULA_CONF
 
 
@@ -28,6 +30,7 @@ class BaseExpert(ABC):
         self.movie_db = MOVIE_DB()
         self.db = self.movie_db.db
         self.movie_s3 = MOVIE_S3()
+        self.movie_tokens = MovieTokens(self.db)
         self.status = ExpertStatus.STARTING
         self.tasks_lock = Lock()
         self.tasks = dict()
@@ -169,3 +172,23 @@ class BaseExpert(ABC):
                 print(f'An exception occurred while fetching {url_link}')
                 result = False
         return result
+
+    def save_to_db(self, movie_id, entries: List[TokenEntry]):
+        error = None
+        result = None
+        try:
+            result, error = self.movie_tokens.save_bulk_movie_tokens(movie_id, entries)
+        except Exception as e:
+          print(f'An exception occurred: {e}')
+          error = f'execption in save_bulk_movie_tokens: {e}'
+        return result, error
+
+    def save_to_db(self, movie_id, entry: TokenEntry):
+        error = None
+        result = None
+        try:
+            result = self.movie_tokens.save_movie_token(movie_id, entry)
+        except Exception as e:
+          print(f'An exception occurred: {e}')
+          error = f'execption in save_bulk_movie_tokens: {e}'
+        return result, error
