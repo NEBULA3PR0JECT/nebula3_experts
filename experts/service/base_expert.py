@@ -148,6 +148,7 @@ class BaseExpert(ABC):
         Returns:
             True/False
         """
+        result = True
         if file_location is None:
             file_location = DEFAULT_FILE_PATH
         # remove last file
@@ -159,9 +160,12 @@ class BaseExpert(ABC):
 
         movie = self.movie_db.get_movie(movie_id)
         if movie:
-            url_link = url_prefix + movie['url_path']
-            url_link = url_link.replace(".avi", ".mp4")
-            print(url_link)
-            urllib.request.urlretrieve(url_link, file_location)
-            return True
-        return False
+            try:
+                url_link = url_prefix + movie['url_path']
+                url_link = url_link.replace(".avi", ".mp4")
+                print(url_link)
+                urllib.request.urlretrieve(url_link, file_location)
+            except:
+                print(f'An exception occurred while fetching {url_link}')
+                result = False
+        return result
