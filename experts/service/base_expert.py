@@ -7,7 +7,9 @@ import logging
 import os
 import sys
 import urllib
+import cv2
 from typing import List
+import shutil
 # add project root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
 
@@ -23,6 +25,7 @@ from nebula3_experts.nebula3_pipeline.nebula3_database.config import NEBULA_CONF
 
 
 DEFAULT_FILE_PATH = "/tmp/file.mp4"
+DEFAULT_FRAMES_PATH = "/tmp/movie_frames"
 
 class BaseExpert(ABC):
     def __init__(self):
@@ -140,23 +143,23 @@ class BaseExpert(ABC):
         print(f'Exiting from: {self.get_name()}')
 
     # utilities
-    def download_video_file(self, movie_id, file_location = None, remove_prev = True):
+    def download_video_file(self, movie_id, movie_location = None, remove_prev = True):
         """download video file to location
 
         Args:
             movie_id (_type_): _description_
-            file_location (str): file location or default
+            movie_location (str): file location or default
             remove_prev: remove previous file on that location
 
         Returns:
             True/False
         """
-        result = True
-        if file_location is None:
-            file_location = DEFAULT_FILE_PATH
+        result = False
+        if movie_location is None:
+            movie_location = DEFAULT_FILE_PATH
         # remove last file
-        if remove_prev and os.path.exists(file_location):
-            os.remove(file_location)
+        if remove_prev and os.path.exists(movie_location):
+            os.remove(movie_location)
 
         url_prefix = self.url_prefix
         url_link = ''
@@ -167,11 +170,60 @@ class BaseExpert(ABC):
                 url_link = url_prefix + movie['url_path']
                 url_link = url_link.replace(".avi", ".mp4")
                 print(url_link)
-                urllib.request.urlretrieve(url_link, file_location)
+                urllib.request.urlretrieve(url_link, movie_location)
+                result = True
             except:
                 print(f'An exception occurred while fetching {url_link}')
-                result = False
+
         return result
+
+    def divide_movie_into_frames(self,
+        frame_list = None,
+        movie_location = DEFAULT_FILE_PATH,
+        movie_out_folder = DEFAULT_FRAMES_PATH,
+        remove_prev = True):
+        """devide move into frames
+
+        Args:
+            frame_list (_type_, optional): specific list of frames, if None then all the frames are extract. Defaults to None.
+            movie_location (_type_, optional): _description_. Defaults to None.
+            movie_out_folder (_type_, optional): _description_. Defaults to DEFAULT_FRAMES_PATH.
+
+        Returns:
+            _type_: list of frames saved
+        """
+        ret_frames = list()
+        # remove last files
+        if remove_prev and os.path.exists(movie_out_folder):
+            shutil.rmtree(movie_out_folder, ignore_errors=True)
+        os.mkdir(movie_out_folder)
+
+        cap = cv2.VideoCapture(movie_location)
+
+        num = 0
+        while True:
+            ret, frame = cap.read()
+            if not cap.isOpened() or not ret:
+                break
+            # check for specific list to avoid saving all frames
+            if frame_list and num not in frame_list:
+                num = num + 1
+                continue
+            # save frame to file
+            if frame is not None:
+                frame_name = os.path.join(movie_out_folder, f'frame{num:04}.jpg')
+                cv2.imwrite(frame_name, frame)
+                ret_frames.append(frame_name)
+            num = num + 1
+
+        # cv2.imwrite(os.path.join(movie_out_folder, f'frame{num:04}.jpg'), frame)
+        # while cap.isOpened() and ret:
+        #     num = num + 1
+        #     ret, frame = cap.read()
+        #     if frame is not None:
+        #         cv2.imwrite(os.path.join(movie_out_folder,
+        #                    f'frame{num:04}.jpg'), frame)
+        return ret_frames
 
     def save_to_db(self, movie_id, entries: List[TokenEntry]):
         error = None
