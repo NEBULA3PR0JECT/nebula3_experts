@@ -27,4 +27,6 @@
 
 # todo:
 - add get/set logger level
+- async operations
+
 
