@@ -24,6 +24,32 @@
 # Env params
 - EXPERT_RUN_PIPELINE: true/false run pipeline thread (default - false)
 
+# From Notebook to Microservice
+- Divide your code to
+  -  **init phase**: setup, load model, download pth, pkl etc'
+  - **run phase**: getting params for predicting: movie file, frames, mdfs, scenes, batch size, activating the model: predict/forward and transforming results to a list of TokenRecord
+- All the cfg params for the init the phase will be defined using the environment variables
+- All the cfg paramd for run phase are passed in the REST call (/predict) in the json body
+- Create a class [ExpertName]Expert e.g: VgExpert which inherits from BaseExpert.
+- Implement at least the following methods:
+  - `__init__(self)`: **init phase** code goes here
+  - `get_name`: return the name of the expert, this name is also used in the Tokens Record in DB or as returned json
+  - `predict(self, expert_params: ExpertParam)`: **run phase** code goes here
+- in the `__main__` section add:
+
+ `
+
+    vg_expert = VgExpert()
+    expert_app = ExpertApp(expert=vg_expert)
+    app = expert_app.get_app()
+    expert_app.run()
+- Basic example can be found in main.py under test folder
+
+- Since the expert run as a module inside an Application Server called FastAPI (which uses uvicorn) you run the uvicorn and direct it to the expert module (assuming vg_expert.py is under vg folder):
+  - `uvicorn vg.vg_expert:app --host 0.0.0.0`
+  -  default port: 8000
+- Prepare an environment.yml file with all your packages in your current conda env (conda env export > environment.yml)
+- Build a docker image: basic Dockerfiles and info (*README.md*) is under Docker/microservice folder
 
 # todo:
 - add get/set logger level
