@@ -104,7 +104,7 @@ class BaseExpert(ABC):
         """ return the taks currently running """
         current_tasks = list()
         with self.tasks_lock:
-            for id, info in self.tasks.items:
+            for id, info in self.tasks.items():
                 current_tasks.append({ 'id': id, 'info': info })
         return current_tasks
 
