@@ -49,7 +49,19 @@
   - `uvicorn vg.vg_expert:app --host 0.0.0.0`
   -  default port: 8000
 - Prepare an environment.yml file with all your packages in your current conda env (conda env export > environment.yml)
+
+### Building a Microservice Docker image
 - Build a docker image: basic Dockerfiles and info (*README.md*) is under Docker/microservice folder
+- Build the docker with a Dockerfile from Docker/microservice folder (note: different files for cpu/gpu), ensure that you have the correct environment.yml in your top folder
+- run it with either command or with docker-compose:
+  - Command: docker run -it -p 8000:8000 -e "ARANGO_HOST=172.83.9.249" -n my_expert docker/image-name
+  - Compose: check the docker.compose.yml file in Docker/microservice folder
+- push the image to your docker hub registry (try to add versioning in the tag name e.g: the commit hash prefix)
+
+## Deploy your microservice
+
+- Go to deployments in Gradient and follow the instructions
+- for deployments.yaml you can use the one located at Docker/microservice folder and change the image name to your image
 
 # todo:
 - add get/set logger level
